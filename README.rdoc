@@ -1,0 +1,14 @@
+= RSA Utility
+
+== Description
+
+RSA Utility is a Java library that can be used to encrypt, decrypt, create and verify digital signatures using RSA publick-key algorithm.
+It can also be used to generate OpenSSL (PEM) keys (private and public).
+
+== Dependencies
+
+This library uses Bouncy Castle library to read and write keys in OpenSSL format (PEM).
+
+== Author
+
+( Victor Lima de Andrade ) [http://github.com/the008]
