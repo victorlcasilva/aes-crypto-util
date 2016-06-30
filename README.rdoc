@@ -7,7 +7,7 @@ Simple library that can be used to handle RSA and AES cryptography. Still under 
 
 == Dependencies
 
-This library uses Bouncy Castle library to handle OpenSSL PEM keys.
+This library uses Bouncy Castle to handle OpenSSL PEM keys.
 
 == Author
 
