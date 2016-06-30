@@ -1,4 +1,4 @@
-package com.the008.app.rsautil;
+package com.the008.app.cryptoutil;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -8,7 +8,7 @@ import java.io.FileOutputStream;
 /**
  * Input/Output Utility.
  * 
- * @author Victor Lima de Andrade
+ * @author Victor Lima de Andrade <victor.the008@gmail.com>
  */
 public abstract class FileIO {
 
