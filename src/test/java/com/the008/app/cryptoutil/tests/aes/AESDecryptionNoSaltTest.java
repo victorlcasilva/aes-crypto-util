@@ -11,7 +11,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.the008.app.cryptoutil.AESOpenSSLKeyUtil;
+import com.the008.app.cryptoutil.aes.AESCryto;
+import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AESDecryptionNoSaltTest {
@@ -24,10 +25,10 @@ public class AESDecryptionNoSaltTest {
     
     @Before
     public void configure(){
-        password = AESOpenSSLKeyUtil.generatePassword();
+        password = SecureRandomGenerator.generatePassword();
         ByteArrayInputStream bai = new ByteArrayInputStream(text.getBytes());
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        AESOpenSSLKeyUtil.encryptNoSalt(bai, password, bao);
+        AESCryto.encryptNoSalt(bai, password, bao);
         encrypted = Base64.encodeBase64String(bao.toByteArray());
     }
     
@@ -39,7 +40,7 @@ public class AESDecryptionNoSaltTest {
         log.info("Encrypted message: "+encrypted);
         ByteArrayInputStream bai = new ByteArrayInputStream(Base64.decodeBase64(encrypted));
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        AESOpenSSLKeyUtil.decrypt(bai, password, bao);
+        AESCryto.decrypt(bai, password, bao);
         decrypted = new String(bao.toByteArray());
         log.info("Decrypted message: "+decrypted);
         Assert.assertEquals("The decrypted message should be the same as the plain message", text, decrypted);

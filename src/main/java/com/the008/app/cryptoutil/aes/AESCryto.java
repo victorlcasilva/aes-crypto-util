@@ -1,4 +1,4 @@
-package com.the008.app.cryptoutil;
+package com.the008.app.cryptoutil.aes;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
@@ -15,35 +14,23 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.codec.binary.Base64;
+import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
 
 /**
- * AES (Advanced Encryption Standard) 256-bits using CBC/PKCS5Padding compatible with OpenSSL
+ * AES (Advanced Encryption Standard) 256-bits encryption / decryption using CBC/PKCS5Padding using OpenSSL key derivation
  * @author Victor Lima de Andrade <victor.the008@gmail.com>
  * @since 2016-06-25
- * @version 1.0
+ * @version 1.1
  */
-public abstract class AESOpenSSLKeyUtil {
+public abstract class AESCryto {
 
     public static final int AES_KEY_SIZE = 32; /* 256 bits */
     public static final String AES_MECHANISM = "AES/CBC/PKCS5Padding";
     public static final String HASH_MECHANISM = "MD5";
-    public static final String SECURE_RANDOM_MECHANISM = "SHA1PRNG";
     public static final int IV_SIZE = 16; /* 128 bits */
     public static final int SALT_SIZE = 8; /* 64 bits */
     public static final int BUFFER_SIZE = 1024;
     public static final byte[] AES_OPENSSL_HEADER = "Salted__".getBytes();
-
-    public static String generatePassword() {
-        try {
-            SecureRandom sr = SecureRandom.getInstance(SECURE_RANDOM_MECHANISM);
-            byte[] pwd = new byte[AES_KEY_SIZE];
-            sr.nextBytes(pwd);
-            return Base64.encodeBase64String(pwd);
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating password: " + e.getMessage(), e);
-        }
-    }
 
     public static void encryptNoSalt(InputStream input, String password, OutputStream output) {
         encrypt(input, password, output, false);
@@ -56,7 +43,7 @@ public abstract class AESOpenSSLKeyUtil {
     private static void encrypt(InputStream input, String password, OutputStream output, boolean useSalt) {
         byte[] salt = null;
         if(useSalt){
-            salt = generateSalt();
+            salt = SecureRandomGenerator.generateRandom(SALT_SIZE);
         }
         byte[][] keys = generateAesKeyIVOpenSSL(salt, password.getBytes());
         byte[] key = keys[0];
@@ -146,18 +133,6 @@ public abstract class AESOpenSSLKeyUtil {
         }catch(IOException e){
             throw new RuntimeException("Error processing decryption: "+e.getMessage(), e);
         }
-    }
-
-    private static byte[] generateSalt() {
-        SecureRandom sr;
-        try {
-            sr = SecureRandom.getInstance(SECURE_RANDOM_MECHANISM);
-        } catch (Exception e) {
-            throw new RuntimeException("Error loading secure random mechanism: " + e.getMessage(), e);
-        }
-        byte[] salt = new byte[SALT_SIZE];
-        sr.nextBytes(salt);
-        return salt;
     }
 
     public static byte[][] generateAesKeyIVOpenSSL(byte[] salt, byte[] data) {

@@ -11,7 +11,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.the008.app.cryptoutil.AESOpenSSLKeyUtil;
+import com.the008.app.cryptoutil.aes.AESCryto;
+import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AESEncryptionTest {
@@ -23,7 +24,7 @@ public class AESEncryptionTest {
     
     @Before
     public void configure(){
-        password = AESOpenSSLKeyUtil.generatePassword();
+        password = SecureRandomGenerator.generatePassword();
     }
     
     @Test
@@ -32,7 +33,7 @@ public class AESEncryptionTest {
         log.info("Generated password: "+password);
         ByteArrayInputStream bai = new ByteArrayInputStream(text.getBytes());
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        AESOpenSSLKeyUtil.encrypt(bai, password, bao);
+        AESCryto.encrypt(bai, password, bao);
         encrypted = Base64.encodeBase64String(bao.toByteArray());
         log.info("Plain message: "+text);
         log.info("Encrypted message: "+encrypted);

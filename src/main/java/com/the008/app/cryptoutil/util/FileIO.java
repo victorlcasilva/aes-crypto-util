@@ -1,4 +1,4 @@
-package com.the008.app.cryptoutil;
+package com.the008.app.cryptoutil.util;
 
 import java.io.BufferedInputStream;
 import java.io.File;
