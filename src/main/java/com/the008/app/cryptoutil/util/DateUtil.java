@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-public class DateUtil {
+public abstract class DateUtil {
 
     private static final String DATE_PATTERN_DMY = "dd/MM/yyyy";
     private static Logger log = Logger.getLogger(DateUtil.class);
