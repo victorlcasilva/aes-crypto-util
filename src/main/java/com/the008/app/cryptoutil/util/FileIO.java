@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Input/Output Utility.
@@ -12,60 +13,32 @@ import java.io.FileOutputStream;
  */
 public abstract class FileIO {
 
-    public static byte[] read(String file) {
+    public static byte[] read(String file) throws IOException {
         return read(new File(file));
     }
-    
-    public static void write(String name, byte[] data){
+
+    public static void write(String name, byte[] data) throws IOException {
         write(new File(name), data);
     }
-    
-    public static byte[] read(File file){
+
+    public static byte[] read(File file) throws IOException {
         byte[] retorno = null;
-        BufferedInputStream in = null;
-        try {
+        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(file))) {
             retorno = new byte[(int) file.length()];
-            in = new BufferedInputStream(new FileInputStream(file));
             in.read(retorno);
         } catch (Exception e) {
-            throw new RuntimeException("Error reading file.", e);
-        } finally {
-            close(in);
+            throw new IOException("Error reading file.", e);
         }
         return retorno;
     }
-    
-    public static void write(File file, byte[] data) {
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(file);
+
+    public static void write(File file, byte[] data) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(data);
         } catch (Exception e) {
-            try {
-                file.delete();
-            } catch (Exception e1) {
-            }
-            throw new RuntimeException("Error writing file.", e);
-        } finally {
-            close(fos);
+            file.delete();
+            throw new IOException("Error writing file.", e);
         }
     }
 
-    private static void close(BufferedInputStream in) {
-        if (in != null) {
-            try {
-                in.close();
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    private static void close(FileOutputStream fos) {
-        if (fos != null) {
-            try {
-                fos.close();
-            } catch (Exception e) {
-            }
-        }
-    }
 }

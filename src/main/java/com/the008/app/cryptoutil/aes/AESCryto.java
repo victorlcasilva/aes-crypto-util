@@ -15,6 +15,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
+import com.the008.app.cryptoutil.util.CryptoException;
 
 /**
  * AES (Advanced Encryption Standard) 256-bits encryption / decryption using CBC/PKCS5Padding using OpenSSL key derivation
@@ -24,13 +25,11 @@ import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
  */
 public abstract class AESCryto {
 
-    public static final int AES_KEY_SIZE = 32; /* 256 bits */
-    public static final String AES_MECHANISM = "AES/CBC/PKCS5Padding";
-    public static final String HASH_MECHANISM = "MD5";
-    public static final int IV_SIZE = 16; /* 128 bits */
-    public static final int SALT_SIZE = 8; /* 64 bits */
-    public static final int BUFFER_SIZE = 1024;
-    public static final byte[] AES_OPENSSL_HEADER = "Salted__".getBytes();
+    private static final String AES_MECHANISM = "AES/CBC/PKCS5Padding";
+    private static final String HASH_MECHANISM = "MD5";
+    private static final int SALT_SIZE = 8; /* 64 bits */
+    private static final int BUFFER_SIZE = 1024;
+    private static final byte[] AES_OPENSSL_HEADER = "Salted__".getBytes();
 
     public static void encryptNoSalt(InputStream input, String password, OutputStream output) {
         encrypt(input, password, output, false);
@@ -54,7 +53,7 @@ public abstract class AESCryto {
             cipher = Cipher.getInstance(AES_MECHANISM);
             cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
         }catch(GeneralSecurityException e){
-            throw new RuntimeException("Error loading encryption mechanism: "+e.getMessage(), e);
+            throw new CryptoException("Error loading encryption mechanism: "+e.getMessage(), e);
         }
 
         try{
@@ -80,7 +79,7 @@ public abstract class AESCryto {
                 output.write(encrypted);
             }
         }catch(IOException e){
-            throw new RuntimeException("Error processing encryption: "+e.getMessage(), e);
+            throw new CryptoException("Error processing encryption: "+e.getMessage(), e);
         }
     }
 
@@ -90,15 +89,15 @@ public abstract class AESCryto {
         byte[][] keys;
         try{
             input.read(salted); /* Read AES OpenSSL Header */
-            input.read(salt);
             if(Arrays.equals(salted, AES_OPENSSL_HEADER)){
+                input.read(salt);
                 keys = generateAesKeyIVOpenSSL(salt, password.getBytes());
             }else{
                 input.reset();
                 keys = generateAesKeyIVOpenSSL(null, password.getBytes());
             }
         }catch(IOException e){
-            throw new RuntimeException("Error reading encrypted message: "+e.getMessage(), e);
+            throw new CryptoException("Error reading encrypted message: "+e.getMessage(), e);
         }
         
         byte[] key = keys[0];
@@ -109,7 +108,7 @@ public abstract class AESCryto {
             cipher = Cipher.getInstance(AES_MECHANISM);
             cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(iv));
         }catch(GeneralSecurityException e){
-            throw new RuntimeException("Error loading decryption mechanism: "+e.getMessage(), e);
+            throw new CryptoException("Error loading decryption mechanism: "+e.getMessage(), e);
         }
 
         byte[] buffer = new byte[BUFFER_SIZE];
@@ -125,13 +124,13 @@ public abstract class AESCryto {
             try {
                 decrypted = cipher.doFinal();
             } catch (IllegalBlockSizeException | BadPaddingException e) {
-                throw new RuntimeException("Error processing decryption: "+e.getMessage(), e);
+                throw new CryptoException("Error processing decryption: "+e.getMessage(), e);
             }
             if (decrypted != null) {
                 output.write(decrypted);
             }
         }catch(IOException e){
-            throw new RuntimeException("Error processing decryption: "+e.getMessage(), e);
+            throw new CryptoException("Error processing decryption: "+e.getMessage(), e);
         }
     }
 
@@ -140,19 +139,19 @@ public abstract class AESCryto {
         try {
             md = MessageDigest.getInstance(HASH_MECHANISM);
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error loading hashing mechanism: " + e.getMessage(), e);
+            throw new CryptoException("Error loading hashing mechanism: " + e.getMessage(), e);
         }
         int count = 1;
         byte[][] both = new byte[2][];
-        byte[] key = new byte[AES_KEY_SIZE];
+        int nkey = 32;
+        byte[] key = new byte[nkey];
         int key_ix = 0;
-        byte[] iv = new byte[IV_SIZE];
+        int niv = 16;
+        byte[] iv = new byte[niv];
         int iv_ix = 0;
         both[0] = key;
         both[1] = iv;
         byte[] md_buf = null;
-        int nkey = AES_KEY_SIZE;
-        int niv = IV_SIZE;
         int i = 0;
         if (data == null) {
             return both;

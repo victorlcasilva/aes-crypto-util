@@ -1,4 +1,4 @@
-package com.the008.app.cryptoutil;
+package com.the008.app.cryptoutil.rsa;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -26,7 +26,8 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.openssl.jcajce.JcePEMEncryptorBuilder;
-import org.bouncycastle.util.io.pem.PemWriter;
+
+import com.the008.app.cryptoutil.util.CryptoException;
 
 /**
  * RSA Key Utility.
@@ -50,25 +51,20 @@ public abstract class RSAKeyUtil {
             sshKey = new String(Base64.encodeBase64(byteOs.toByteArray()));
             sshKey = "ssh-rsa " + sshKey + " " + user;
         } catch (Exception e) {
-            throw new RuntimeException("Error encoding RSA SSH key", e);
+            throw new CryptoException("Error encoding RSA SSH key", e);
         }
         return sshKey;
     }
 
     public static PublicKey readPublicKey(File file) {
         loadBCProvider();
-        BufferedReader reader = null;
-        PEMParser parser = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
-            parser = new PEMParser(reader);
+        try ( BufferedReader reader = new BufferedReader(new FileReader(file));
+              PEMParser parser = new PEMParser(reader)) {
             SubjectPublicKeyInfo pbinfo = (SubjectPublicKeyInfo) parser.readObject();
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
             return converter.getPublicKey(pbinfo);
         } catch (Exception e) {
-            throw new RuntimeException("Error reading a RSA public key in PEM format", e);
-        } finally {
-            close(reader, parser);
+            throw new CryptoException("Error reading a RSA public key in PEM format", e);
         }
     }
 
@@ -80,20 +76,16 @@ public abstract class RSAKeyUtil {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             key = keyFactory.generatePublic(publicKeySpec);
         } catch (Exception e) {
-            throw new RuntimeException("Error extracting a RSA public key from a RSA private key.", e);
+            throw new CryptoException("Error extracting a RSA public key from a RSA private key.", e);
         }
         return key;
     }
 
     public static void writePublicKeyPEM(PublicKey publicKey, File output) {
-        JcaPEMWriter writer = null;
-        try {
-            writer = new JcaPEMWriter(new FileWriter(output));
+        try (JcaPEMWriter writer = new JcaPEMWriter(new FileWriter(output))){
             writer.writeObject(publicKey);
         } catch (IOException e) {
-            throw new RuntimeException("Error writing public key in PEM format", e);
-        } finally {
-            close(writer);
+            throw new CryptoException("Error writing public key in PEM format", e);
         }
     }
 
@@ -102,18 +94,14 @@ public abstract class RSAKeyUtil {
     }
 
     public static void writePrivateKeyPEM(PrivateKey privateKey, File output, String password) {
-        JcaPEMWriter writer = null;
-        try {
-            writer = new JcaPEMWriter(new FileWriter(output));
+        try (JcaPEMWriter writer = new JcaPEMWriter(new FileWriter(output))){
             if (password != null) {
                 writer.writeObject(privateKey, new JcePEMEncryptorBuilder("DES-EDE3-CBC").build(password.toCharArray()));
             } else {
                 writer.writeObject(privateKey);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error writing private key in PEM format", e);
-        } finally {
-            close(writer);
+            throw new CryptoException("Error writing private key in PEM format", e);
         }
     }
 
@@ -123,12 +111,9 @@ public abstract class RSAKeyUtil {
 
     public static PrivateKey readPrivateKeyPEM(File file, String password) {
         loadBCProvider();
-        BufferedReader reader = null;
-        PEMParser parser = null;
         PEMKeyPair keyPair = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
-            parser = new PEMParser(reader);
+        try ( BufferedReader reader = new BufferedReader(new FileReader(file));
+              PEMParser parser = new PEMParser(reader)) {
             Object obj = parser.readObject();
             if (obj instanceof PEMEncryptedKeyPair) {
                 if (password == null) {
@@ -143,39 +128,13 @@ public abstract class RSAKeyUtil {
             JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
             return converter.getPrivateKey(keyPair.getPrivateKeyInfo());
         } catch (Exception e) {
-            throw new RuntimeException("Error reading a RSA private key in PEM format", e);
-        } finally {
-            close(reader, parser);
+            throw new CryptoException("Error reading a RSA private key in PEM format", e);
         }
     }
 
     private static void loadBCProvider() {
         if (Security.getProvider("BC") == null) {
             Security.addProvider(new BouncyCastleProvider());
-        }
-    }
-
-    private static void close(PemWriter writer) {
-        if (writer != null) {
-            try {
-                writer.close();
-            } catch (IOException ie) {
-            }
-        }
-    }
-
-    private static void close(BufferedReader reader, PEMParser parser) {
-        if (parser != null) {
-            try {
-                parser.close();
-            } catch (IOException ie) {
-            }
-        }
-        if (reader != null) {
-            try {
-                reader.close();
-            } catch (IOException ie) {
-            }
         }
     }
 

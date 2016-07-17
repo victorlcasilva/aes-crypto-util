@@ -4,6 +4,8 @@ import java.security.SecureRandom;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.the008.app.cryptoutil.util.CryptoException;
+
 public abstract class SecureRandomGenerator {
 
     public static final int DEFAULT_PASSWORD_SIZE = 32; /* 256 bits */
@@ -16,7 +18,7 @@ public abstract class SecureRandomGenerator {
             sr.nextBytes(rnd);
             return rnd;
         } catch (Exception e) {
-            throw new RuntimeException("Error generating secure random number: " + e.getMessage(), e);
+            throw new CryptoException("Error generating secure random number: " + e.getMessage(), e);
         }
     }
     
