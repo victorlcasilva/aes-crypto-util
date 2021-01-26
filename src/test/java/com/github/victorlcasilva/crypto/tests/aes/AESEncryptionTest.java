@@ -1,8 +1,9 @@
-package com.the008.app.cryptoutil.tests.aes;
+package com.github.victorlcasilva.crypto.tests.aes;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import com.github.victorlcasilva.crypto.aes.AESCryto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Assert;
@@ -11,8 +12,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.the008.app.cryptoutil.aes.AESCryto;
-import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
+import com.github.victorlcasilva.crypto.generator.SecureRandomGenerator;
 
 @Slf4j
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

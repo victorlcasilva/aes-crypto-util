@@ -1,10 +1,10 @@
-package com.the008.app.cryptoutil.generator;
+package com.github.victorlcasilva.crypto.generator;
 
 import java.security.SecureRandom;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.the008.app.cryptoutil.util.CryptoException;
+import com.github.victorlcasilva.crypto.util.CryptoException;
 
 public abstract class SecureRandomGenerator {
 

@@ -1,11 +1,11 @@
-package com.the008.app.cryptoutil.tests.generator;
+package com.github.victorlcasilva.crypto.tests.generator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
+import com.github.victorlcasilva.crypto.generator.SecureRandomGenerator;
 
 @Slf4j
 public class SecureRandomPasswordGenerationTest {

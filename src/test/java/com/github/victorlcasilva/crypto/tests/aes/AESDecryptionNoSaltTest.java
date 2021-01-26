@@ -1,8 +1,9 @@
-package com.the008.app.cryptoutil.tests.aes;
+package com.github.victorlcasilva.crypto.tests.aes;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import com.github.victorlcasilva.crypto.aes.AESCryto;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Assert;
@@ -11,12 +12,12 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.the008.app.cryptoutil.aes.AESCryto;
-import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
+import com.github.victorlcasilva.crypto.generator.SecureRandomGenerator;
 
 @Slf4j
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AESDecryptionTest {
+public class AESDecryptionNoSaltTest {
+
 
     private String text = "Hello World";
     private String password;
@@ -28,12 +29,12 @@ public class AESDecryptionTest {
         password = SecureRandomGenerator.generatePassword();
         ByteArrayInputStream bai = new ByteArrayInputStream(text.getBytes());
         ByteArrayOutputStream bao = new ByteArrayOutputStream();
-        AESCryto.encrypt(bai, password, bao);
+        AESCryto.encryptNoSalt(bai, password, bao);
         encrypted = Base64.encodeBase64String(bao.toByteArray());
     }
     
     @Test
-    public void test_Decrypt(){
+    public void test_Decrypt() throws Exception{
         log.debug("Testing AES 256-bits decryption");
         log.debug("Generated password: "+password);
         log.debug("Plain message: "+text);
@@ -43,7 +44,7 @@ public class AESDecryptionTest {
         AESCryto.decrypt(bai, password, bao);
         decrypted = new String(bao.toByteArray());
         log.debug("Decrypted message: "+decrypted);
-        Assert.assertEquals("The decrypted message should be the same as the plain message", decrypted, text);
+        Assert.assertEquals("The decrypted message should be the same as the plain message", text, decrypted);
     }
     
 }

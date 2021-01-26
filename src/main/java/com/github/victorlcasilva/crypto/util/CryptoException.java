@@ -1,4 +1,4 @@
-package com.the008.app.cryptoutil.util;
+package com.github.victorlcasilva.crypto.util;
 
 public class CryptoException extends RuntimeException{
 

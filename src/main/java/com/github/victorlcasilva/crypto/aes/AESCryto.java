@@ -1,4 +1,4 @@
-package com.the008.app.cryptoutil.aes;
+package com.github.victorlcasilva.crypto.aes;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,8 +14,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.the008.app.cryptoutil.generator.SecureRandomGenerator;
-import com.the008.app.cryptoutil.util.CryptoException;
+import com.github.victorlcasilva.crypto.generator.SecureRandomGenerator;
+import com.github.victorlcasilva.crypto.util.CryptoException;
 
 /**
  * AES (Advanced Encryption Standard) 256-bits encryption / decryption using CBC/PKCS5Padding using OpenSSL key derivation
